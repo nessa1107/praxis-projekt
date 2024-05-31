@@ -8,3 +8,4 @@ Dieses Projekt und die dazugehörende Dokumentation befasst sich mit dem FloodNe
 
 Leider konnte der FloodNet-Datensatz aus technischen Gründen nicht zum Repository hinzugefügt werden. Bitte diesen seperat herunterladen und in das Projekt einfügen. Hierzu den FloodNet-Ordner in FloodNet umbenennen und einfach in den Projektordner ziehen und in den Ordnern "train", "test" und "val" die Ordner "train-label-img", "train-org-img", "test-label-img", "test-org-img" "val-label-img" und "val-org-image" umbenennen, sodass die Ordner jeweils "label-img" und "org-img" heißen.
 Es sollte dann folgende Ordner Struktur vorliegen:
+![Screenshot 2024-05-31 110947](https://github.com/nessa1107/praxis-projekt/assets/85506778/b40cc1f1-c9bf-4639-8273-ab12cb62f4cd)
