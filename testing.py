@@ -3,7 +3,7 @@ from tqdm import tqdm
 import uNet
 from floodNet import test_loader, num_classes
 from visualisation import visualize_prediction
-from iouCalculator import compute_iou
+from iouCalculator import compute_mean_iou
 
 print("Modules imported successfully.")
 
@@ -28,7 +28,7 @@ for i, (images, labels) in enumerate(tqdm(test_loader)):
 
     predictions = torch.argmax(outputs, dim=1)
 
-    iou += compute_iou(labels, predictions)
+    iou += compute_mean_iou(labels, predictions)
 
     if (i + 1) % 5 == 0 or (i + 1) == num_examples-1:
         image = images[0]

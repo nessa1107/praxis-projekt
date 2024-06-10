@@ -47,6 +47,7 @@ for epoch in range(num_epochs):
     train_loss = 0.0
     train_iou = 0
     train_batches = len(train_loader)
+    train_iou_per_class_accumulator = [0] * num_classes
 
     print(f'Epoch [{epoch + 1}/{num_epochs}]')
     for batch_idx, (images, labels) in enumerate(tqdm(train_loader, desc=f"Training Epoch {epoch + 1}")):
@@ -65,8 +66,13 @@ for epoch in range(num_epochs):
         train_loss += loss.item()
 
         train_predictions = outputs.argmax(dim=1)
-        train_batch_iou = iouCalculator.compute_iou(train_predictions, train_labels).item()
+        train_batch_iou = iouCalculator.compute_mean_iou(train_predictions, train_labels).item()
+        iou_per_class = iouCalculator.compute_iou_per_class(train_predictions, train_labels, num_classes)
         train_iou += train_batch_iou
+
+        for cls in range(num_classes):
+            train_iou_per_class_accumulator[cls] += iou_per_class[cls]
+
 
         if batch_idx == train_batches - 1:
             image = images[0]
@@ -76,13 +82,18 @@ for epoch in range(num_epochs):
 
     train_loss /= train_batches
     train_iou /= train_batches
-    print(f'\rTrain Loss: {train_loss:.4f}, Mean Train IoU: {train_iou:.4f}')
+    train_iou_per_class = [iou / train_batches for iou in train_iou_per_class_accumulator]
+    print(f'\rEpoch {epoch+1}/{num_epochs}:\rTrain Loss: {train_loss:.4f}')
+    for cls in range(num_classes):
+        print(f'Class {cls} IoU: {train_iou_per_class[cls]:.4f}')
+    print(f'Mean Train IoU: {train_iou:.4f}')
 
     # Validation Loop
     model.eval()
     val_loss = 0
     val_iou = 0
     val_batches = len(val_loader)
+    val_iou_per_class_accumulator = [0] * num_classes
 
     with torch.no_grad():
         for batch_idx, (images, labels) in enumerate(tqdm(val_loader, desc=f"Validation Epoch {epoch + 1}")):
@@ -98,8 +109,12 @@ for epoch in range(num_epochs):
             val_loss += loss.item()
 
             val_predictions = outputs.argmax(dim=1)
-            val_batch_iou = iouCalculator.compute_iou(val_predictions, val_labels).item()
+            val_batch_iou = iouCalculator.compute_mean_iou(val_predictions, val_labels).item()
             val_iou += val_batch_iou
+            val_iou_per_class = iouCalculator.compute_iou_per_class(val_predictions, val_labels, num_classes)
+
+            for cls in range(num_classes):
+                val_iou_per_class_accumulator[cls] += val_iou_per_class[cls]
 
             if batch_idx == val_batches - 1:
                 image = images[0]
@@ -110,7 +125,11 @@ for epoch in range(num_epochs):
 
     val_loss /= val_batches
     val_iou /= val_batches
-    print(f'\rValidation Loss: {val_loss:.4f}, Mean Validation IoU: {val_iou:.4f}')
+    mean_val_iou_per_class = [iou / val_batches for iou in val_iou_per_class_accumulator]
+    print(f'\rEpoch {epoch+1}/{num_epochs}:\rValidation Loss: {val_loss:.4f}')
+    for cls in range(num_classes):
+        print(f'Validation Class {cls} IoU: {mean_val_iou_per_class[cls]:.4f}')
+    print(f'Validation Mean IoU: {val_iou:.4f}')
     model.train()
 
 print("Training Completed.")
