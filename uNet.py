@@ -6,7 +6,7 @@ class UNet(nn.Module):
     def __init__(self, in_channels, out_channels):
         super(UNet, self).__init__()
         # Dropout
-        # self.dropout = nn.Dropout(p=0.5)
+        self.dropout = nn.Dropout(p=0.5)
         # Contracting Path
         self.conv1 = self.conv_block(in_channels, 64)
         self.conv2 = self.conv_block(64, 128)
@@ -32,7 +32,7 @@ class UNet(nn.Module):
             nn.Conv2d(out_channels, out_channels, kernel_size=3, padding=1),
             nn.ReLU(),
             nn.BatchNorm2d(out_channels),
-            # self.dropout
+            self.dropout
         )
         return block
 

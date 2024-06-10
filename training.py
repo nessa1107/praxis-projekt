@@ -38,10 +38,10 @@ class_weights = torch.tensor(class_weights, dtype=torch.float).cuda()
 print(f'Weights: {class_weights}')
 
 criterion = nn.CrossEntropyLoss(weight=class_weights)
-optimizer = optim.Adam(model.parameters(), lr=0.00000001)
+optimizer = optim.Adam(model.parameters(), lr=0.0001)
 
 # Training Loop
-num_epochs = 20
+num_epochs = 15
 model.train()
 for epoch in range(num_epochs):
     train_loss = 0.0
