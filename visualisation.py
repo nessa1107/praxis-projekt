@@ -11,11 +11,11 @@ def visualize_prediction(image, prediction, label):
     axes[0].set_title('Input Image')
     axes[0].axis('off')
 
-    axes[1].imshow(label, cmap='gray')
+    axes[1].imshow(label)
     axes[1].set_title('Ground Truth')
     axes[1].axis('off')
 
-    axes[2].imshow(prediction, cmap='gray')
+    axes[2].imshow(prediction)
     axes[2].set_title('Model Prediction')
     axes[2].axis('off')
     plt.show()

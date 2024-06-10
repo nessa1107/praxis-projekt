@@ -44,7 +44,7 @@ optimizer = optim.Adam(model.parameters(), lr=0.00000001)
 num_epochs = 20
 model.train()
 for epoch in range(num_epochs):
-    train_loss = 0
+    train_loss = 0.0
     train_iou = 0
     train_batches = len(train_loader)
 
