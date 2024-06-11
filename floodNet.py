@@ -2,7 +2,7 @@ from torch.utils.data import DataLoader
 from dataLoaderFloodNet import DataLoaderFloodNet
 
 
-batch_size = 2
+batch_size = 8
 num_classes = 10
 
 train_dataset = DataLoaderFloodNet(folder_path=r'FloodNet\train')
