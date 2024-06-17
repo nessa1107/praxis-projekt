@@ -17,7 +17,6 @@ print(f'Device: {device}')
 train_loader = floodNet.train_loader
 val_loader = floodNet.val_loader
 
-
 num_classes = floodNet.num_classes
 height = dataLoaderFloodNet.height
 width = dataLoaderFloodNet.width
@@ -39,6 +38,14 @@ print(f'Weights: {class_weights}')
 
 criterion = nn.CrossEntropyLoss(weight=class_weights)
 optimizer = optim.Adam(model.parameters(), lr=1e-7)
+
+
+def example_visualisation(images, predictions, labels):
+    image = images[0]
+    prediction = predictions[0].cpu().numpy()
+    label = labels[0].cpu().numpy()
+    visualize_prediction(image, prediction, label)
+
 
 # Training Loop
 num_epochs = 20
@@ -66,27 +73,21 @@ for epoch in range(num_epochs):
         train_loss += loss.item()
 
         train_predictions = outputs.argmax(dim=1)
-        train_batch_iou = iouCalculator.compute_mean_iou(train_predictions, train_labels).item()
-        iou_per_class = iouCalculator.compute_iou_per_class(train_predictions, train_labels, num_classes)
-        train_iou += train_batch_iou
+        train_iou_per_class = iouCalculator.compute_iou_per_class(train_predictions, train_labels, num_classes)
 
         for cls in range(num_classes):
-            train_iou_per_class_accumulator[cls] += iou_per_class[cls]
-
+            train_iou_per_class_accumulator[cls] += train_iou_per_class[cls]
 
         if batch_idx == train_batches - 1:
-            image = images[0]
-            prediction = train_predictions[0].cpu().numpy()
-            label = train_labels[0].cpu().numpy()
-            visualize_prediction(image, prediction, label)
+            example_visualisation(images, train_predictions, train_labels)
 
     train_loss /= train_batches
-    train_iou /= train_batches
-    train_iou_per_class = [iou / train_batches for iou in train_iou_per_class_accumulator]
+
+    mean_train_iou_per_class = [iou / train_batches for iou in train_iou_per_class_accumulator]
     print(f'\rEpoch {epoch+1}/{num_epochs}:\rTrain Loss: {train_loss:.4f}')
     for cls in range(num_classes):
-        print(f'Class {cls} IoU: {train_iou_per_class[cls]:.4f}')
-    print(f'Mean Train IoU: {train_iou:.4f}')
+        print(f'Class {cls} IoU: {mean_train_iou_per_class[cls]:.4f}')
+    print(f'Mean Train IoU: {sum(mean_train_iou_per_class) / num_classes:.4f}')
 
     # Validation Loop
     model.eval()
@@ -117,19 +118,16 @@ for epoch in range(num_epochs):
                 val_iou_per_class_accumulator[cls] += val_iou_per_class[cls]
 
             if batch_idx == val_batches - 1:
-                image = images[0]
-                prediction = val_predictions[0].cpu().numpy()
-                label = val_labels[0].cpu().numpy()
-                visualize_prediction(image, prediction, label)
+                example_visualisation(images, val_predictions, val_labels)
 
 
     val_loss /= val_batches
-    val_iou /= val_batches
+
     mean_val_iou_per_class = [iou / val_batches for iou in val_iou_per_class_accumulator]
     print(f'\rEpoch {epoch+1}/{num_epochs}:\rValidation Loss: {val_loss:.4f}')
     for cls in range(num_classes):
         print(f'Validation Class {cls} IoU: {mean_val_iou_per_class[cls]:.4f}')
-    print(f'Validation Mean IoU: {val_iou:.4f}')
+    print(f'Validation Mean IoU: {sum(mean_val_iou_per_class) / num_classes:.4f}')
     model.train()
 
 print("Training Completed.")
