@@ -55,5 +55,6 @@ for i, (images, labels) in enumerate(tqdm(test_loader)):
 mean_iou_per_class = [iou / num_examples for iou in iou_per_class_accumulator]
 
 for cls in range(num_classes):
-    print(f'Class {cls} IoU: {mean_iou_per_class[cls]:.4f}')
-print(f'\rTest Mean IoU: {iou/num_examples:.4f}')
+    class_name = ClassNames(cls).name.replace('_', ' ')
+    print(f'Class {cls} ({class_name}) IoU: {mean_iou_per_class[cls]:.4f}')
+print(f'\rTest Mean IoU: {sum(mean_iou_per_class) / num_classes:.4f}')

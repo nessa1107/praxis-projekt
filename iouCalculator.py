@@ -3,15 +3,6 @@ import torch
 SMOOTH = 1e-6
 
 
-def compute_mean_iou(output, label):
-    intersection = torch.logical_and(output, label).sum((1, 2))
-    union = torch.logical_or(output, label).sum((1, 2))
-
-    iou = (intersection.float() / (union.float() + SMOOTH)).mean()
-
-    return iou
-
-
 def compute_iou_per_class(output, label, num_classes):
     iou_per_class = []
     for cls in range(num_classes):

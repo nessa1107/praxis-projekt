@@ -9,6 +9,7 @@ import dataLoaderFloodNet
 import uNet
 import floodNet
 import iouCalculator
+from classNames import ClassNames
 from visualisation import visualize_prediction
 
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
@@ -37,7 +38,7 @@ class_weights = torch.tensor(class_weights, dtype=torch.float).cuda()
 print(f'Weights: {class_weights}')
 
 criterion = nn.CrossEntropyLoss(weight=class_weights)
-optimizer = optim.Adam(model.parameters(), lr=1e-7)
+optimizer = optim.Adam(model.parameters(), lr=1e-5)
 
 
 def example_visualisation(images, predictions, labels):
@@ -48,11 +49,10 @@ def example_visualisation(images, predictions, labels):
 
 
 # Training Loop
-num_epochs = 20
+num_epochs = 30
 model.train()
 for epoch in range(num_epochs):
     train_loss = 0.0
-    train_iou = 0
     train_batches = len(train_loader)
     train_iou_per_class_accumulator = [0] * num_classes
 
@@ -86,13 +86,13 @@ for epoch in range(num_epochs):
     mean_train_iou_per_class = [iou / train_batches for iou in train_iou_per_class_accumulator]
     print(f'\rEpoch {epoch+1}/{num_epochs}:\rTrain Loss: {train_loss:.4f}')
     for cls in range(num_classes):
-        print(f'Class {cls} IoU: {mean_train_iou_per_class[cls]:.4f}')
+        class_name = ClassNames(cls).name.replace('_', ' ')
+        print(f'Class {cls} ({class_name}) IoU: {mean_train_iou_per_class[cls]:.4f}')
     print(f'Mean Train IoU: {sum(mean_train_iou_per_class) / num_classes:.4f}')
 
     # Validation Loop
     model.eval()
     val_loss = 0
-    val_iou = 0
     val_batches = len(val_loader)
     val_iou_per_class_accumulator = [0] * num_classes
 
@@ -110,8 +110,6 @@ for epoch in range(num_epochs):
             val_loss += loss.item()
 
             val_predictions = outputs.argmax(dim=1)
-            val_batch_iou = iouCalculator.compute_mean_iou(val_predictions, val_labels).item()
-            val_iou += val_batch_iou
             val_iou_per_class = iouCalculator.compute_iou_per_class(val_predictions, val_labels, num_classes)
 
             for cls in range(num_classes):
@@ -126,7 +124,8 @@ for epoch in range(num_epochs):
     mean_val_iou_per_class = [iou / val_batches for iou in val_iou_per_class_accumulator]
     print(f'\rEpoch {epoch+1}/{num_epochs}:\rValidation Loss: {val_loss:.4f}')
     for cls in range(num_classes):
-        print(f'Validation Class {cls} IoU: {mean_val_iou_per_class[cls]:.4f}')
+        class_name = ClassNames(cls).name.replace('_', ' ')
+        print(f'Validation Class {cls} ({class_name}) IoU: {mean_val_iou_per_class[cls]:.4f}')
     print(f'Validation Mean IoU: {sum(mean_val_iou_per_class) / num_classes:.4f}')
     model.train()
 
