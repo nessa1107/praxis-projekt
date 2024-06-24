@@ -3,7 +3,7 @@ from tqdm import tqdm
 import uNet
 from floodNet import test_loader, num_classes
 from visualisation import visualize_prediction
-from iouCalculator import compute_mean_iou, compute_iou_per_class
+from iouCalculator import compute_iou_per_class
 import numpy as np
 from classNames import ClassNames
 
@@ -31,13 +31,12 @@ for i, (images, labels) in enumerate(tqdm(test_loader)):
 
     predictions = torch.argmax(outputs, dim=1)
 
-    iou += compute_mean_iou(labels, predictions)
     iou_per_class = compute_iou_per_class(predictions, labels, num_classes)
 
     for cls in range(num_classes):
         iou_per_class_accumulator[cls] += iou_per_class[cls]
 
-    if (i + 1) % 50 == 0 or (i + 1) == num_examples-1:
+    if (i + 1) % 10 == 0 or (i + 1) == num_examples-1:
         image = images[0]
         prediction = predictions[0].cpu().numpy()
         label = labels[0].cpu().squeeze().numpy()

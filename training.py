@@ -37,6 +37,7 @@ class_weights = class_weight.compute_class_weight(class_weight='balanced', class
 class_weights = torch.tensor(class_weights, dtype=torch.float).cuda()
 print(f'Weights: {class_weights}')
 
+
 criterion = nn.CrossEntropyLoss(weight=class_weights)
 optimizer = optim.Adam(model.parameters(), lr=1e-5)
 
@@ -49,7 +50,7 @@ def example_visualisation(images, predictions, labels):
 
 
 # Training Loop
-num_epochs = 30
+num_epochs = 35
 model.train()
 for epoch in range(num_epochs):
     train_loss = 0.0

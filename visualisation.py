@@ -15,6 +15,7 @@ def visualize_prediction(image, prediction, label):
     axes[1].set_title('Ground Truth')
     axes[1].axis('off')
 
+
     axes[2].imshow(prediction)
     axes[2].set_title('Model Prediction')
     axes[2].axis('off')
