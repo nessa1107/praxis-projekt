@@ -47,7 +47,7 @@ for i, (images, labels) in enumerate(tqdm(test_loader)):
 
         for cls, percentage in class_percentages.items():
             class_name = ClassNames(cls).name.replace('_', ' ')
-            print(f'The Picture contains {percentage:.2f}% of {class_name}')
+            print(f'\rThe Picture contains {percentage:.2f}% of {class_name}')
 
         visualize_prediction(image, prediction, label)
 

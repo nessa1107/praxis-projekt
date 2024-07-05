@@ -10,7 +10,7 @@ import uNet
 import floodNet
 import iouCalculator
 from classNames import ClassNames
-from visualisation import visualize_prediction
+from visualisation import visualize_prediction, visualize_loss
 
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 print(f'Device: {device}')
@@ -50,7 +50,10 @@ def example_visualisation(images, predictions, labels):
 
 
 # Training Loop
-num_epochs = 35
+num_epochs = 20
+train_losses = []
+val_losses = []
+
 model.train()
 for epoch in range(num_epochs):
     train_loss = 0.0
@@ -83,6 +86,7 @@ for epoch in range(num_epochs):
             example_visualisation(images, train_predictions, train_labels)
 
     train_loss /= train_batches
+    train_losses.append(train_loss)
 
     mean_train_iou_per_class = [iou / train_batches for iou in train_iou_per_class_accumulator]
     print(f'\rEpoch {epoch+1}/{num_epochs}:\rTrain Loss: {train_loss:.4f}')
@@ -121,6 +125,7 @@ for epoch in range(num_epochs):
 
 
     val_loss /= val_batches
+    val_losses.append(val_loss)
 
     mean_val_iou_per_class = [iou / val_batches for iou in val_iou_per_class_accumulator]
     print(f'\rEpoch {epoch+1}/{num_epochs}:\rValidation Loss: {val_loss:.4f}')
@@ -133,3 +138,5 @@ for epoch in range(num_epochs):
 print("Training Completed.")
 
 torch.save(model.state_dict(), 'u_net_flood_net.pth')
+
+visualize_loss(train_losses, val_losses)
